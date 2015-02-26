@@ -104,7 +104,7 @@ class Codeception
             return false;
 
         // Using Symfony's Yaml parser, the file gets turned into an array.
-        $config = \Symfony\Component\Yaml\Yaml::parse($full_path);
+        $config = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($full_path));
 
         // Update the config to include the full path.
         foreach ($config['paths'] as $key => &$test_path) {
@@ -248,6 +248,7 @@ class Codeception
         $params = array(
             $this->config['executable'],        // Codeception Executable
             "run",                              // Command to Codeception
+            "--no-colors",                      // Forcing Codeception to not use colors, if enabled in codeception.yml
             "--config=\"{$this->site->getConfig()}\"", // Full path & file of Codeception
             $type,                              // Test Type (Acceptance, Unit, Functional)
             $filename,                          // Filename of the Codeception test
@@ -344,7 +345,7 @@ class Codeception
 
         if (! file_exists($file)) {
             $response['error'] = 'The Codeception executable could not be found.';
-        } elseif ( ! is_executable($file)) {
+        } elseif ( ! is_executable($file) && strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
             $response['error'] = 'Codeception isn\'t executable. Have you set executable rights to the following (try chmod o+x).';
         }
 
